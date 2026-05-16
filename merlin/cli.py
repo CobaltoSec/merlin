@@ -116,6 +116,7 @@ async def _scan_async(
     ollama_host: str | None = None,
     ollama_model: str | None = None,
     variants_per_seed: int | None = None,
+    max_payloads: int | None = None,
 ) -> tuple[EngagementSession, int]:
     if module_name not in MODULES:
         console.print(f"[red]Unknown module {module_name!r}. Choices: {list(MODULES)}[/red]")
@@ -162,6 +163,11 @@ async def _scan_async(
         if gen_name == "ollama":
             console.print(f"[cyan]→ Generating variants via Ollama[/cyan] ({generator.model} @ {generator.host})")
         payloads = generator.generate(module.category, context=gen_context)
+        if max_payloads is not None and max_payloads > 0 and len(payloads) > max_payloads:
+            console.print(
+                f"[cyan]→ Trimming payloads {len(payloads)} → {max_payloads} (--max-payloads)[/cyan]"
+            )
+            payloads = payloads[:max_payloads]
         if not payloads:
             console.print("[yellow]⚠ generator returned 0 payloads — nothing to scan[/yellow]")
             session.fail()
@@ -221,6 +227,7 @@ def scan(
     ollama_host: str | None = typer.Option(None, "--ollama-host", help="Ollama base URL (only when --gen ollama)."),
     ollama_model: str | None = typer.Option(None, "--ollama-model", help="Ollama model tag (only when --gen ollama)."),
     variants_per_seed: int | None = typer.Option(None, "--variants-per-seed", help="Ollama: variants generated per seed payload."),
+    max_payloads: int | None = typer.Option(None, "--max-payloads", help="Cap total payloads per scan (after generation). Useful for cost-controlled API targets."),
 ) -> None:
     """Run a scan against an LLM-integrated endpoint."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -247,6 +254,7 @@ def scan(
             ollama_host=ollama_host,
             ollama_model=ollama_model,
             variants_per_seed=variants_per_seed,
+            max_payloads=max_payloads,
         )
     )
 
