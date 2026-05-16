@@ -5,6 +5,19 @@ All notable changes to Merlin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-05-16
+
+Hygiene patch — defaults only. No behavior change for existing users.
+
+### Changed
+- `merlin.generators.ollama.DEFAULT_OLLAMA_HOST`: `http://192.168.0.20:11434` → `http://127.0.0.1:11434` (matches upstream Ollama default; was previously a development LAN IP).
+- `labs/vulnerable_chat.py`: same default change for `OLLAMA_HOST`.
+- `labs/README.md`: example commands now reference `127.0.0.1`.
+- `DESIGN.md`: three references to internal infra naming replaced with generic "local Ollama instance".
+
+### Why
+The previous default leaked an internal LAN IP and an infra-specific identifier into a public artifact. No real exposure (RFC1918 + a private name), but uglier than necessary for an open-source release.
+
 ## [0.1.0] — 2026-05-16
 
 First public release. OWASP LLM01 (Prompt Injection) coverage end-to-end,
