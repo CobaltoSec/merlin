@@ -24,6 +24,7 @@ from merlin.core.http_client import AsyncTargetClient, TargetCallError, TargetCo
 from merlin.core.session import EngagementSession
 from merlin.generators.ollama import OllamaGenerator
 from merlin.generators.static import StaticGenerator
+from merlin.modules.excessive_agency import ExcessiveAgencyModule
 from merlin.modules.prompt_injection import PromptInjectionModule
 from merlin.modules.sensitive_info_disclosure import SensitiveInfoDisclosureModule
 from merlin.modules.system_prompt_leak import SystemPromptLeakModule
@@ -45,6 +46,7 @@ MODULES = {
     "prompt-injection": PromptInjectionModule,
     "system-prompt-leak": SystemPromptLeakModule,
     "sensitive-info-disclosure": SensitiveInfoDisclosureModule,
+    "excessive-agency": ExcessiveAgencyModule,
 }
 
 
