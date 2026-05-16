@@ -1,0 +1,41 @@
+# Environment / secrets
+.env
+*.key
+*.pem
+
+# Merlin engagement state (never commit)
+state.json
+session.json
+*.state.json
+
+# Engagement artifacts
+engagements/
+raw/
+findings/
+loot/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
