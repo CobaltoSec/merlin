@@ -1,15 +1,20 @@
 """Smoke tests for the CLI — subprocess invocation, no network."""
 
+import os
 import subprocess
 import sys
 
 
 def _run(args: list[str], timeout: float = 30.0) -> tuple[int, str, str]:
+    # Disable Rich / colorama color codes so substring assertions work on
+    # Linux CI runners where TERM is set even without a TTY.
+    env = {**os.environ, "NO_COLOR": "1", "TERM": "dumb"}
     proc = subprocess.run(
         [sys.executable, "-m", "merlin.cli", *args],
         capture_output=True,
         text=True,
         timeout=timeout,
+        env=env,
     )
     return proc.returncode, proc.stdout, proc.stderr
 
