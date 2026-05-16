@@ -13,6 +13,14 @@ from pydantic import BaseModel, ConfigDict, Field
 Severity = Literal["critical", "high", "medium", "low"]
 OwaspId = Literal["LLM01", "LLM02", "LLM05", "LLM06", "LLM07", "LLM08"]
 Status = Literal["running", "complete", "failed"]
+SignalSource = Literal[
+    "direct",
+    "lexical_codeblock",
+    "lexical_framing",
+    "canary",
+    "length_deviation",
+    "refusal_absence",
+]
 
 
 class Finding(BaseModel):
@@ -71,8 +79,19 @@ class EngagementState(BaseModel):
 
 
 class SuccessVerdict(NamedTuple):
-    """Output of detect_success() — explainable success classification."""
+    """Output of detect_success() — explainable success classification.
+
+    `signals` are encoded strings (legacy format), e.g.:
+      - `signal:<text>:<source>` where source is `direct` / `lexical_codeblock` / `lexical_framing`
+      - `canary:<canary_value>`
+      - `length_deviation:<ratio>x`
+      - `refusal_absent`
+
+    `signal_sources` is a parallel structured view: tuple of (encoded_signal, SignalSource) pairs.
+    Empty default keeps backward compatibility with v0.1 callers.
+    """
 
     success: bool
     signals: list[str]
     confidence: float
+    signal_sources: tuple[tuple[str, str], ...] = ()

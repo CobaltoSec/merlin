@@ -34,6 +34,49 @@ def _build_repro_curl(target: str, payload: str) -> str:
     return f"curl -X POST {target} \\\n  -H 'Content-Type: application/json' \\\n  -d {json.dumps(body)}"
 
 
+def _signal_source_summary(signals: list[str]) -> str:
+    """Summarize encoded signals by source.
+
+    Encoded format (v0.2):
+      - `signal:<text>:<source>` (direct | lexical_codeblock | lexical_framing)
+      - `canary:<value>`
+      - `length_deviation:<ratio>x`
+      - `refusal_absent`
+
+    Returns a compact string like `direct(2) lexical(1) canary` or `—` if empty.
+    Lexical = lexical_codeblock + lexical_framing collapsed.
+    """
+    if not signals:
+        return "—"
+    counts = {"direct": 0, "lexical": 0, "canary": 0, "length": 0, "refusal": 0}
+    for s in signals:
+        if s.startswith("signal:"):
+            parts = s.rsplit(":", 1)
+            src = parts[-1] if len(parts) == 2 else ""
+            if src == "direct":
+                counts["direct"] += 1
+            elif src.startswith("lexical"):
+                counts["lexical"] += 1
+        elif s.startswith("canary:"):
+            counts["canary"] += 1
+        elif s.startswith("length_deviation"):
+            counts["length"] += 1
+        elif s == "refusal_absent":
+            counts["refusal"] += 1
+    parts = []
+    if counts["direct"]:
+        parts.append(f"direct({counts['direct']})")
+    if counts["lexical"]:
+        parts.append(f"lexical({counts['lexical']})")
+    if counts["canary"]:
+        parts.append("canary")
+    if counts["length"]:
+        parts.append("length")
+    if counts["refusal"]:
+        parts.append("refusal")
+    return " ".join(parts) if parts else "—"
+
+
 def render_report(state: EngagementState, target_url: str | None = None) -> str:
     """Render the engagement state to a Markdown string."""
     findings = sorted(
@@ -64,6 +107,7 @@ def render_report(state: EngagementState, target_url: str | None = None) -> str:
             "low": severity_counts.get("low", 0),
         },
         "repro_curl": _build_repro_curl,
+        "signal_source_summary": _signal_source_summary,
     }
 
     env = _build_env(_templates_dir())

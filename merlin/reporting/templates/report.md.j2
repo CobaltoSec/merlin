@@ -58,9 +58,9 @@ sandboxing).
 ## 3. Findings Table
 
 {% if findings %}
-| # | Severity | OWASP | Technique | Confidence | Signals |
-|---|----------|-------|-----------|------------|---------|
-{% for f in findings %}| {{ loop.index }} | {{ f.severity }} | {{ f.owasp_id }} | `{{ f.technique }}` | {{ '%.2f' | format(f.confidence) }} | {{ f.success_signals | length }} |
+| # | Severity | OWASP | Technique | Confidence | Signals | Signal Source |
+|---|----------|-------|-----------|------------|---------|---------------|
+{% for f in findings %}| {{ loop.index }} | {{ f.severity }} | {{ f.owasp_id }} | `{{ f.technique }}` | {{ '%.2f' | format(f.confidence) }} | {{ f.success_signals | length }} | {{ signal_source_summary(f.success_signals) }} |
 {% endfor %}
 {% else %}
 _No findings._
