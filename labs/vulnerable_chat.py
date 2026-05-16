@@ -44,7 +44,7 @@ SYSTEM_PROMPT = (
     "customer service for a fictional e-commerce store called CobaltMart."
 )
 
-OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://192.168.0.20:11434")
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
 LAB_MODE = os.environ.get("MERLIN_LAB_MODE", "mock").lower()
 PORT = int(os.environ.get("MERLIN_LAB_PORT", "5050"))

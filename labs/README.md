@@ -33,7 +33,7 @@ python labs/vulnerable_chat.py
 
 ```bash
 MERLIN_LAB_MODE=ollama \
-OLLAMA_HOST=http://192.168.0.20:11434 \
+OLLAMA_HOST=http://127.0.0.1:11434 \
 OLLAMA_MODEL=qwen2.5:7b \
 python labs/vulnerable_chat.py
 ```
@@ -62,5 +62,5 @@ merlin scan --target http://127.0.0.1:5050/api/chat --output-dir ./engagements
 |-----|---------|---------|
 | `MERLIN_LAB_MODE` | `mock` | `mock` or `ollama` |
 | `MERLIN_LAB_PORT` | `5050` | bind port |
-| `OLLAMA_HOST` | `http://192.168.0.20:11434` | ollama mode only |
+| `OLLAMA_HOST` | `http://127.0.0.1:11434` | ollama mode only |
 | `OLLAMA_MODEL` | `qwen2.5:7b` | ollama mode only |

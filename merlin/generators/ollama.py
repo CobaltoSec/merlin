@@ -3,15 +3,15 @@
 Stable interface, implementation pending v0.2.
 
 The v0.2 plan: send the fingerprint + a few seed payloads to a local Ollama
-model (e.g. qwen2.5:7b on LXC 200) and ask it to generate target-specific
-variations that exploit the detected model's known weaknesses.
+instance and ask it to generate target-specific variations that exploit the
+detected model's known weaknesses.
 """
 
 from __future__ import annotations
 
 from merlin.core.models import PayloadSpec
 
-DEFAULT_OLLAMA_HOST = "http://192.168.0.20:11434"
+DEFAULT_OLLAMA_HOST = "http://127.0.0.1:11434"
 DEFAULT_OLLAMA_MODEL = "qwen2.5:7b"
 
 

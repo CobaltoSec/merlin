@@ -72,7 +72,7 @@ PyYAML       archivos de payloads
 jinja2       templates de report
 
 # Opcionales
-ollama       LXC 200 de Nico (qwen2.5:7b, gratis, sin API key)
+ollama       local Ollama instance (qwen2.5:7b, gratis, sin API key)
 anthropic    Claude API (mejor calidad generación contextual)
 ```
 
@@ -107,7 +107,7 @@ merlin/
 ├── generators/
 │   ├── base.py                 # interfaz abstracta
 │   ├── static.py               # default: usa YAML directamente
-│   ├── ollama.py               # LXC 200
+│   ├── ollama.py               # local Ollama
 │   └── claude.py               # opcional
 │
 └── reporting/
@@ -170,7 +170,7 @@ Output handling (LLM05) funcionó si:
 # Básico (static payloads, cero deps)
 merlin scan --target https://empresa.com/chat
 
-# Con Ollama local (LXC 200, gratis)
+# Con Ollama local (gratis)
 merlin scan --target https://empresa.com/chat --gen ollama
 
 # Con Claude API (mejor calidad, opcional)
