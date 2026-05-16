@@ -5,6 +5,90 @@ All notable changes to Merlin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-05-16
+
+Major release — detector v0.2, real Ollama generator, three new OWASP LLM Top 10
+categories. Coverage triples (LLM01 only → LLM01+LLM07+LLM02+LLM06). Test count
+doubles (37 → 81).
+
+### Added — coverage
+- **LLM07 — System Prompt Leakage** module + 22 payloads across 5 vectors
+  (`direct_ask`, `role_inversion`, `metadata_exfil`, `instruction_repeat`,
+  `delimiter_break`). CLI: `merlin scan --module system-prompt-leak`.
+- **LLM02 — Sensitive Information Disclosure** module + 18 payloads across 4
+  vectors (`pii_extraction`, `training_data_recall`, `api_key_probe`,
+  `internal_url_probe`). CLI: `merlin scan --module sensitive-info-disclosure`.
+- **LLM06 — Excessive Agency** module + 16 payloads across 4 vectors
+  (`ssrf_via_tool`, `command_injection_via_tool`, `file_read_via_tool`,
+  `tool_chain_abuse`). CLI: `merlin scan --module excessive-agency`.
+- `merlin.core.mock_tool_server.MockToolServer` — companion lab tool for LLM06
+  probing. Three pseudo-dangerous endpoints (`http_fetch`, `file_read`,
+  `shell_exec`) each respond with a unique canary
+  (`CANARY_HTTP_FETCH_HIT_M3RL1N`, etc.) so canaries propagate end-to-end when
+  the target LLM relays the mock tool's response.
+
+### Changed — core
+- **`merlin.core.success_detector` v0.2**: signal-source classification.
+  Each signal occurrence is classified as `direct`, `lexical_codeblock`,
+  `lexical_framing`, `canary`, `length_deviation`, or `refusal_absence`. When
+  the majority of `signal:*` matches fall inside fenced code blocks or after
+  illustrative framing phrases ("for example:", "imagine if...", "por
+  ejemplo"), confidence is multiplied by 0.3. Direct driver: the smoke Run 2
+  (llama3.2:3b) flagged `fake_new_system_directive` as a hit because the model
+  echoed signals inside a generated code block. The regression test
+  `test_lexical_framing_repro_run2_fake_new_system_directive` locks it in.
+- **Encoded signal format** gains a third part: `signal:<text>:<source>`.
+  Backward-compatible: `s.startswith("signal:foo")` still matches.
+- **`SuccessVerdict`** gains a structured `signal_sources: tuple[tuple[str, str], ...]`
+  field with empty default — backward-compatible for v0.1 callers.
+- **`Module.run()` signature**: receives a pre-built `payloads: list[PayloadSpec]`
+  instead of a `Generator` instance. Fixes a latent v0.1 bug where
+  `generator.generate()` was called twice (CLI for progress bar + module). Saves
+  2× cost on Ollama generation.
+- **`SingleShotModule`**: shared base for LLM01/LLM02/LLM07. Subclasses are 5
+  lines (declare `owasp_id` / `category` / `name`).
+
+### Added — generators
+- **`merlin.generators.ollama.OllamaGenerator`** — actual implementation (was a
+  `NotImplementedError` stub in v0.1). POSTs each seed to
+  `{host}/api/generate`, asks for N reworded variants, validates each against
+  `PayloadSpec`. Tolerates `‏```json` fences, prose around the array, missing
+  fields, network errors — never crashes the scan. Inherits `severity` /
+  `vector` from the seed; variant IDs are `{seed.id}__ollama_v{idx}`.
+
+### Added — CLI
+- `--ollama-host`, `--ollama-model`, `--variants-per-seed` — Ollama generator
+  configuration.
+- `--max-payloads N` — cap the total payload count per scan after generation.
+  Useful for paid-API targets (OpenAI / Anthropic) or small Ollama models where
+  token cost matters.
+
+### Added — reporting
+- New **Signal Source** column in the report's Findings Table, summarizing each
+  finding's signal classifications (`direct(2) lexical(1)` style). Exposed via
+  the `signal_source_summary()` helper in the Jinja context.
+
+### Added — tests
+- `tests/test_ollama_generator.py` — 11 tests with `respx` mocking.
+- `tests/test_modules_singleshot.py` — 5 tests across LLM01/02/07 modules.
+- `tests/test_mock_tool_server.py` — 8 tests for `MockToolServer`.
+- `tests/test_excessive_agency_module.py` — 4 tests covering canary echo
+  detection and capability-limited targets.
+- `tests/test_success_detector.py` — 11 new tests, including the
+  Run 2 regression test.
+- `tests/test_payload_loader.py` — 5 new tests covering the three new
+  categories.
+- Coverage total: 37 (v0.1) → 81 (v0.2), all green.
+
+### Known limitations
+- **LLM06** requires target configuration: the operator points the target's
+  tool array at `MockToolServer.aiohttp_app()` for full validation. Targets
+  without configurable tool calling degrade to "model describes the tool
+  invocation" matching, much weaker. Documented in
+  `merlin/modules/excessive_agency.py` docstring.
+- Detector v0.2 still heuristic. v0.3 plan: replace with LLM-judge.
+- PyPI publish deferred to v0.3 (pending 2-3 real-target case studies).
+
 ## [0.1.1] — 2026-05-16
 
 Hygiene patch — defaults only. No behavior change for existing users.
