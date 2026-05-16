@@ -107,6 +107,9 @@ async def _scan_async(
     output_dir: Path,
     canary: str,
     target_cfg: TargetConfig,
+    ollama_host: str | None = None,
+    ollama_model: str | None = None,
+    variants_per_seed: int | None = None,
 ) -> tuple[EngagementSession, int]:
     if module_name not in MODULES:
         console.print(f"[red]Unknown module {module_name!r}. Choices: {list(MODULES)}[/red]")
@@ -115,7 +118,16 @@ async def _scan_async(
         console.print(f"[red]Unknown generator {gen_name!r}. Choices: {list(GENERATORS)}[/red]")
         raise typer.Exit(code=2)
 
-    generator = GENERATORS[gen_name]()
+    gen_kwargs: dict = {}
+    if gen_name == "ollama":
+        if ollama_host:
+            gen_kwargs["host"] = ollama_host
+        if ollama_model:
+            gen_kwargs["model"] = ollama_model
+        if variants_per_seed:
+            gen_kwargs["variants_per_seed"] = variants_per_seed
+
+    generator = GENERATORS[gen_name](**gen_kwargs)
     module = MODULES[module_name]()
 
     session = EngagementSession.create(target=target, output_root=output_dir, merlin_version=__version__)
@@ -140,7 +152,14 @@ async def _scan_async(
             f"(confidence={confidence}, latency={latency:.0f}ms)"
         )
 
-        payloads = generator.generate(module.category)
+        gen_context = {"fingerprint": fp}
+        if gen_name == "ollama":
+            console.print(f"[cyan]→ Generating variants via Ollama[/cyan] ({generator.model} @ {generator.host})")
+        payloads = generator.generate(module.category, context=gen_context)
+        if not payloads:
+            console.print("[yellow]⚠ generator returned 0 payloads — nothing to scan[/yellow]")
+            session.fail()
+            return session, 2
         console.print(f"[cyan]→ Running module[/cyan] {module.name} with {len(payloads)} payloads")
 
         with Progress(
@@ -193,6 +212,9 @@ def scan(
     method: str = typer.Option("POST", "--method", help="HTTP method."),
     headers: str | None = typer.Option(None, "--headers", help="Semicolon-separated key:val list."),
     timeout: float = typer.Option(15.0, "--timeout", help="Per-request timeout (seconds)."),
+    ollama_host: str | None = typer.Option(None, "--ollama-host", help="Ollama base URL (only when --gen ollama)."),
+    ollama_model: str | None = typer.Option(None, "--ollama-model", help="Ollama model tag (only when --gen ollama)."),
+    variants_per_seed: int | None = typer.Option(None, "--variants-per-seed", help="Ollama: variants generated per seed payload."),
 ) -> None:
     """Run a scan against an LLM-integrated endpoint."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -216,6 +238,9 @@ def scan(
             output_dir=output_dir,
             canary=canary,
             target_cfg=target_cfg,
+            ollama_host=ollama_host,
+            ollama_model=ollama_model,
+            variants_per_seed=variants_per_seed,
         )
     )
 
