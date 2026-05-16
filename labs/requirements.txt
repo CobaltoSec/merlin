@@ -1,0 +1,5 @@
+# Dependencies for the bundled lab target (labs/vulnerable_chat.py).
+# Not required by the merlin core package.
+
+flask>=3.0
+httpx>=0.27.0
