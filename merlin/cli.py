@@ -25,6 +25,8 @@ from merlin.core.session import EngagementSession
 from merlin.generators.ollama import OllamaGenerator
 from merlin.generators.static import StaticGenerator
 from merlin.modules.prompt_injection import PromptInjectionModule
+from merlin.modules.sensitive_info_disclosure import SensitiveInfoDisclosureModule
+from merlin.modules.system_prompt_leak import SystemPromptLeakModule
 from merlin.reporting.report import write_report
 
 app = typer.Typer(
@@ -41,6 +43,8 @@ GENERATORS = {
 
 MODULES = {
     "prompt-injection": PromptInjectionModule,
+    "system-prompt-leak": SystemPromptLeakModule,
+    "sensitive-info-disclosure": SensitiveInfoDisclosureModule,
 }
 
 
@@ -180,7 +184,7 @@ async def _scan_async(
 
             await module.run(
                 target=client,
-                generator=generator,
+                payloads=payloads,
                 session=session,
                 concurrency=concurrency,
                 rate_limit=rate_limit,

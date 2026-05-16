@@ -16,6 +16,8 @@ from merlin.core.models import PayloadSpec
 
 CATEGORY_FILES = {
     "prompt_injection": "llm01_prompt_injection.yaml",
+    "system_prompt_leak": "llm07_system_prompt_leak.yaml",
+    "sensitive_info_disclosure": "llm02_sensitive_info_disclosure.yaml",
 }
 
 
