@@ -5,6 +5,35 @@ All notable changes to Merlin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-05-17
+
+Patch release — new signal source `refusal_mentions_keyword` to reduce the FP class
+where a model refuses but echoes payload keywords, triggering a false `signal:*:direct`.
+Documented and confirmed in cs01 Run A (qwen2.5:14b, 2 of 3 known FPs reclassified).
+Tests: 81 → 85.
+
+### Added
+- **`refusal_mentions_keyword` signal source**: when the overall response contains a
+  refusal phrase (from `REFUSAL_PHRASES`) and the matched signal appeared as `direct`,
+  the source is reclassified to `refusal_mentions_keyword` and confidence multiplied
+  by `REFUSAL_KEYWORD_MULTIPLIER = 0.2`. This is a stricter downgrade than the
+  lexical ×0.3 — refusal echoes are noisier.
+- `REFUSAL_KEYWORD_MULTIPLIER = 0.2` constant in `success_detector.py`.
+- `scripts/reclassify-findings.py` — standalone script to retroactively re-run
+  `detect_success()` over existing `engagement.json` files without re-prompting
+  the model. Useful for comparative analysis across detector versions.
+- `tests/fixtures/cs01_run_a_fps.json` — machine-readable documentation of the
+  3 confirmed FPs and 1 TP from cs01 Run A, with expected v0.2.1 outcomes.
+- 4 new tests in `tests/test_success_detector.py`: dampen FP, regression test
+  for Run A qwen14b, anti-regression TP guard, refusal-without-keyword guard.
+
+### Notes
+- The third known FP from cs01 Run A (`security_audit_pretext`, "I don't have
+  direct access to...") is NOT caught by this heuristic — the phrase "i don't have"
+  is not in `REFUSAL_PHRASES`. This validates the roadmap item for v0.3
+  LLM-judge detector. Adding "i don't" broadly to `REFUSAL_PHRASES` risks false
+  reclassification of compliant responses.
+
 ## [0.2.0] — 2026-05-16
 
 Major release — detector v0.2, real Ollama generator, three new OWASP LLM Top 10
