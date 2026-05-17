@@ -5,6 +5,28 @@ All notable changes to Merlin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-05-17
+
+First PyPI release (`pip install merlin-llm`). Includes all v0.2.x features plus
+the v0.2.1 detector patch. 4/10 OWASP LLM Top 10 categories covered, 85 tests,
+first public case study.
+
+### Added
+- **PyPI publish** — `pip install merlin-llm`. Entry-point `merlin` available
+  post-install. Wheel + sdist validated (payloads/*.yaml + templates/*.j2 included).
+- **Case Study CS-01** (`case-studies/01-ollama-bench/report.md`) — Ollama multimodel
+  benchmark: qwen2.5 7B/14B/32B, 70 payloads (LLM01+LLM07+LLM02). Key result:
+  7B 73% hit rate, 14B 24%, 32B 21%. Size ≠ safety alignment.
+- **README**: PyPI/downloads/tests badges, Case Studies table, v0.3 OWASP coverage
+  table with roadmap (LLM05/09/10 → v0.3, LLM03 spin-off, LLM04/08 deferred).
+- **`pyproject.toml`**: explicit `content-type = "text/markdown"` on readme field.
+
+### Includes (from v0.2.1)
+- `refusal_mentions_keyword` signal source (×0.2) — reduces FP class where model
+  refuses but echoes payload keywords. Validated on CS-01 Run A.
+- `scripts/reclassify-findings.py` — retroactive reclassification tool.
+- 81 → 85 tests.
+
 ## [0.2.1] — 2026-05-17
 
 Patch release — new signal source `refusal_mentions_keyword` to reduce the FP class

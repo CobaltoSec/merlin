@@ -1,6 +1,9 @@
-![CI](https://github.com/CobaltoSec/merlin/actions/workflows/test.yml/badge.svg)
+[![PyPI version](https://img.shields.io/pypi/v/cobaltosec-merlin.svg)](https://pypi.org/project/cobaltosec-merlin/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/cobaltosec-merlin.svg)](https://pypi.org/project/cobaltosec-merlin/)
+[![CI](https://github.com/CobaltoSec/merlin/actions/workflows/test.yml/badge.svg)](https://github.com/CobaltoSec/merlin/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
+[![Tests](https://img.shields.io/badge/tests-85%20passing-brightgreen.svg)](tests/)
 
 # Merlin — LLM Attack Surface Framework
 
@@ -8,18 +11,27 @@
 
 > **Legal**: This tool is for authorized security testing and research only. Use against LLM-integrated applications you do not own or lack explicit written permission to test is illegal. Authors assume no liability for misuse. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-## v0.1.0 — what's in the box
+## Install
+
+```bash
+pip install cobaltosec-merlin
+merlin version
+```
+
+## v0.3.0 — what's in the box
 
 | Capability | Status |
 |------------|--------|
-| OWASP LLM01 (Prompt Injection) — 30 curated payloads | ✅ |
+| OWASP LLM01 (Prompt Injection) — 30 payloads, 5 vectors | ✅ |
+| OWASP LLM07 (System Prompt Leakage) — 22 payloads, 5 vectors | ✅ |
+| OWASP LLM02 (Sensitive Info Disclosure) — 18 payloads, 4 vectors | ✅ |
+| OWASP LLM06 (Excessive Agency) — 16 payloads + MockToolServer | ✅ |
+| Detector v0.2.1 — signal source classification (direct / lexical / refusal_kw / canary) | ✅ |
+| Ollama generator (contextual variant generation via LLM) | ✅ |
 | Async HTTP client (httpx) with retry / 429 / timeout | ✅ |
-| Heuristic success detector (signal + canary + length + refusal) | ✅ |
-| Markdown report (jinja2, 5 sections incl. repro curl) | ✅ |
+| Markdown report (jinja2, signal type column) | ✅ |
 | Vulnerable lab target (Flask, dual-mode mock / ollama) | ✅ |
-| Static payload generator | ✅ |
-| Ollama / Claude generators | 🚧 v0.2 |
-| OWASP LLM02, LLM05–LLM08 | 🚧 v0.2 / v0.3 |
+| 85 tests | ✅ |
 
 ## Quick start
 
@@ -73,12 +85,24 @@ See [DESIGN.md](DESIGN.md) for the full architectural breakdown.
 
 | ID    | Category                          | Status |
 |-------|-----------------------------------|--------|
-| LLM01 | Prompt Injection                  | ✅ v0.1 (30 payloads, 5 vectors) |
-| LLM02 | Sensitive Information Disclosure  | 🚧 v0.2 |
+| LLM01 | Prompt Injection                  | ✅ v0.1 — 30 payloads, 5 vectors |
+| LLM02 | Sensitive Information Disclosure  | ✅ v0.2 — 18 payloads, 4 vectors |
+| LLM06 | Excessive Agency                  | ✅ v0.2 — 16 payloads + MockToolServer |
+| LLM07 | System Prompt Leakage             | ✅ v0.2 — 22 payloads, 5 vectors |
 | LLM05 | Improper Output Handling          | 🚧 v0.3 |
-| LLM06 | Excessive Agency                  | 🚧 v0.2 |
-| LLM07 | System Prompt Leakage             | 🚧 v0.2 |
-| LLM08 | Vector / Embedding Weaknesses     | 🚧 v0.3 |
+| LLM09 | Misinformation                    | 🚧 v0.3 |
+| LLM10 | Unbounded Consumption             | 🚧 v0.3 |
+| LLM03 | Supply Chain                      | 🔮 spin-off `merlin-supply-audit` |
+| LLM04 | Data / Model Poisoning            | 🔮 v0.5+ |
+| LLM08 | Vector / Embedding Weaknesses     | 🔮 v0.4 |
+
+## Case Studies
+
+Real-world benchmarks run with Merlin on authorized targets:
+
+| # | Target | Models | Key finding |
+|---|--------|--------|-------------|
+| [CS-01](case-studies/01-ollama-bench/report.md) | Ollama local — qwen2.5 multimodel | 7B / 14B / 32B | 7B: 73% hit rate; 14B most resistant on LLM01; size ≠ safety alignment |
 
 ## CLI
 
