@@ -205,6 +205,27 @@ async def _scan_async(
     console.print(f"[green]✓[/green] Report: {session.report_path}")
     console.print(f"[green]✓[/green] State : {session.json_path}")
     _print_summary(session)
+
+    try:
+        from cobalt_hub_client import emit as _hub_emit  # type: ignore[import]
+        by_sev: dict[str, int] = {}
+        for f in session.state.findings:
+            by_sev[f.severity] = by_sev.get(f.severity, 0) + 1
+        _hub_emit(
+            "merlin.scan.completed",
+            {
+                "target": target,
+                "module": module_name,
+                "findings_total": len(session.state.findings),
+                "critical_count": by_sev.get("critical", 0),
+                "high_count": by_sev.get("high", 0),
+                "modules_run": session.state.modules_run,
+            },
+            "merlin",
+        )
+    except Exception:
+        pass
+
     return session, 0
 
 
