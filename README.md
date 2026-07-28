@@ -3,7 +3,7 @@
 [![CI](https://github.com/CobaltoSec/merlin/actions/workflows/test.yml/badge.svg)](https://github.com/CobaltoSec/merlin/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](pyproject.toml)
-<!-- MERLIN_TESTS_START -->[![Tests](https://img.shields.io/badge/tests-85%20passing-brightgreen.svg)](tests/)<!-- MERLIN_TESTS_END -->
+<!-- MERLIN_TESTS_START -->[![Tests](https://img.shields.io/badge/tests-0%20passing-brightgreen.svg)](tests/)<!-- MERLIN_TESTS_END -->
 
 # Merlin — LLM Attack Surface Framework
 
